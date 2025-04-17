@@ -1,4 +1,3 @@
-// src/app/components/ClearStorage.tsx
 "use client";
 
 import { useEffect } from "react";
