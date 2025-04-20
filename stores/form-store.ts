@@ -92,20 +92,23 @@ export const useFormStore = create<FormState>()((set) => ({
   ),
 }));
 
-
 type SubStore = {
   name: string;
   value: string;
+  errors: { path: string; message: string }[];
   setName: (name: string) => void;
   setValue: (value: string) => void;
+  setErrors: (errors: { path: string; message: string }[]) => void;
 };
 
 export const createSubStore = (initial: { name: string; value: string }) =>
   create<SubStore>((set) => ({
     name: initial.name,
     value: initial.value,
+    errors: [],
     setName: (name) => set({ name }),
     setValue: (value) => set({ value }),
+    setErrors: (errors) => set({ errors }),
   }));
 
 type SubStoreMap = {
