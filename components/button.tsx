@@ -10,7 +10,7 @@ export default function Button() {
         useShallow((state) => ({
             nombre: state.nombre.value,
             apellido: state.apellido.value,
-            numeroTelefono: state.numeoTelefono.value,
+            numeroTelefono: state.numeroTelefono.value,
             foto: state.foto.value
         })
     ))
