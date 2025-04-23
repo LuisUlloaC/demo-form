@@ -19,6 +19,7 @@ export function SubmitButton({ id }: SubmitButtonProps) {
     if (!result.success && result.errors) {
       store.setState((s) => ({ ...s, errors: result.errors }));
     } else {
+      store.setState((s) => ({ ...s, errors: result.errors }));
       console.log("Envío correcto", result);
     }
     console.log("DATA: ", store.getState());

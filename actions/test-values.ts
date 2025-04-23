@@ -29,7 +29,7 @@ export async function sendValues(data: unknown) {
 
   if (result.success) {
     console.log("Server Action recibió datos válidos:", result.data);
-    return { success: true, data: result.data };
+    return { success: true, errors: [] };
   }
   const flatten = result.error.flatten();
   const fieldErrors = flatten.fieldErrors;
