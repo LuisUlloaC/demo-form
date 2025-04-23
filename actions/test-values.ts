@@ -5,27 +5,14 @@ import { z } from "zod";
 const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre es obligatorio" }),
   value: z.string().min(1, { message: "El valor es obligatorio" }),
+  c: z.string().min(10, { message: "El valor es obligatorio" }),
 });
 
 export type FormData = z.infer<typeof formSchema>;
 
-const normalizeData = (raw: unknown): Record<string, string> => {
-  if (typeof raw !== "object" || raw === null) return {};
-  const entries = Object.values(raw as Record<string, any>);
-  return entries.reduce<Record<string, string>>((acc, curr) => {
-    if (curr && typeof curr === "object" && "name" in curr && "value" in curr) {
-      acc[curr.name] = String(curr.value);
-    }
-    return acc;
-  }, {});
-};
-
 export async function sendValues(data: unknown) {
   console.log("Server Action recibió:", data);
-  const payload = normalizeData(data);
-  console.log("Server Action formateó:", payload);
-
-  const result = formSchema.safeParse(payload);
+  const result = formSchema.safeParse(data);
 
   if (result.success) {
     console.log("Server Action recibió datos válidos:", result.data);

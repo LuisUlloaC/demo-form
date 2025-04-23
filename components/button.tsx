@@ -3,18 +3,26 @@
 import { sendValues } from "@/actions/test-values";
 import { useMainStore } from "@/stores/form-store";
 
-interface SubmitButtonProps {
+interface SubmitButtonProps<
+  Data = unknown,
+  Result = { success: boolean; errors?: any[] }
+> {
   id: string;
+  action: (data: Data) => Promise<Result>;
 }
 
-export function SubmitButton({ id }: SubmitButtonProps) {
+export function SubmitButton({ id, action }: SubmitButtonProps) {
   const main = useMainStore();
   const store = main.getStore(id)!;
 
   const handleClick = async () => {
-    const state = store.getState().fields;
-    const data = { ...state };
-    const result = await sendValues(data);
+    const fields = store.getState().fields;
+    const data = fields.reduce(
+      (acc, { name, value }) => ({ ...acc, [name]: value }),
+      {}
+    );
+
+    const result = await action(data);
 
     if (!result.success && result.errors) {
       store.setState((s) => ({ ...s, errors: result.errors }));
