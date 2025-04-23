@@ -1,113 +1,35 @@
-//import { create } from 'zustand';
-//
-//interface formState {
-//  nombre: {
-//    value: string;
-//    setValue: (newValue: string) => void;
-//    error: null|string;
-//    setError: (newError: null|string) => void;
-//  };
-//  apellido: {
-//    value: null|string;
-//    setValue: (newValue: string) => void;
-//    error: null|string;
-//    setError: (newError: null|string) => void;
-//  };
-//  numeroTelefono: {
-//    value: null|string;
-//    setValue: (newValue: string) => void;
-//    error: null|string;
-//    setError: (newError: null|string) => void;
-//  };
-//  foto: {
-//    value: null|string;
-//    setValue: (newValue: string) => void;
-//    error: null|string;
-//    setError: (newError: null|string) => void;
-//  }
-//}
-//
-//export const useFormStore = create<formState>((set) => ({
-//    nombre: {
-//        value: '',
-//        setValue: (newValue) => set((state) => ({nombre: {...state.nombre, value: newValue}})),
-//        error: null,
-//        setError: (newError) => set((state) => ({nombre: {...state.nombre, error: newError}}))
-//      },
-//    apellido: {
-//        value: '',
-//        setValue: (newValue) => set((state) => ({apellido: {...state.apellido, value: newValue}})),
-//        error: null,
-//        setError: (newError) => set((state) => ({apellido: {...state.apellido, error: newError}}))
-//      },
-//    numeroTelefono: {
-//        value: '',
-//        setValue: (newValue) => set((state) => ({numeroTelefono: {...state.numeroTelefono, value: newValue}})),
-//        error: null,
-//        setError: (newError) => set((state) => ({numeroTelefono: {...state.numeroTelefono, error: newError}}))
-//      },
-//    foto: {
-//        value: '',
-//        setValue: (newValue) => set((state) => ({foto: {...state.foto, value: newValue}})),
-//        error: null,
-//        setError: (newError) => set((state) => ({foto: {...state.foto, error: newError}}))
-//      }
-//}));
-
-// stores/form-store.ts
 import { create } from "zustand";
 
-interface FormField {
-  value: string;
-  setValue: (value: string) => void;
-  error?: string;
-  setError: (newError: undefined | string) => void;
-}
-
-interface FormState {
-  [key: string]: FormField;
-}
-
-export const useFormStore = create<FormState>()((set) => ({
-  // Inicialización vacía con firma de índice
-  ...["nombre", "apellido", "numeroTelefono", "foto"].reduce(
-    (acc, key) => ({
-      ...acc,
-      [key]: {
-        value: "",
-        setValue: (value: string) =>
-          set((state) => ({
-            ...state,
-            [key]: { ...state[key], value },
-          })),
-        error: undefined,
-        setError: (error: string) =>
-          set((state) => ({
-            ...state,
-            [key]: { ...state[key], error },
-          })),
-      },
-    }),
-    {}
-  ),
-}));
-
-type SubStore = {
+type Field = {
   name: string;
   value: string;
+};
+
+type SubStore = {
+  fields: Field[];
   errors: { path: string; message: string }[];
-  setName: (name: string) => void;
-  setValue: (value: string) => void;
+  setField: (name: string, value: string) => void;
   setErrors: (errors: { path: string; message: string }[]) => void;
 };
 
-export const createSubStore = (initial: { name: string; value: string }) =>
-  create<SubStore>((set) => ({
-    name: initial.name,
-    value: initial.value,
+export const createSubStore = (initial: Field[]) =>
+  create<SubStore>((set, get) => ({
+    fields: [...initial],
     errors: [],
-    setName: (name) => set({ name }),
-    setValue: (value) => set({ value }),
+
+    setField: (name, value) => {
+      set((state) => {
+        const idx = state.fields.findIndex((f) => f.name === name);
+        if (idx >= 0) {
+          const updated = [...state.fields];
+          updated[idx] = { name, value };
+          return { fields: updated };
+        } else {
+          return { fields: [...state.fields, { name, value }] };
+        }
+      });
+    },
+
     setErrors: (errors) => set({ errors }),
   }));
 
@@ -117,7 +39,10 @@ type SubStoreMap = {
 
 type MainStore = {
   stores: SubStoreMap;
-  createStore: (id: string, initial: { name: string; value: string }) => void;
+  createStore: (
+    id: string,
+    initial: Field[]
+  ) => void;
   getStore: (id: string) => ReturnType<typeof createSubStore> | undefined;
   removeStore: (id: string) => void;
 };
@@ -125,7 +50,7 @@ type MainStore = {
 export const useMainStore = create<MainStore>((set, get) => ({
   stores: {},
 
-  createStore: (id, initial) => {
+  createStore: (id, initial: Field[] = []) => {
     const newStore = createSubStore(initial);
     set((state) => ({
       stores: {

@@ -1,29 +1,10 @@
-import Input from "@/components/input";
-import ClearStorage from "@/components/clearStorage";
-import Button from "@/components/button";
+import { SubStoreComponent } from "@/components/sub-store";
 
-interface PageProps {
-  searchParams: Promise<{ errors?: string }>;
-}
-
-export default async function Page({ searchParams }: PageProps) {
-
+export default function Page() {
   return (
-    <main>
-      <ClearStorage />
-      <form
-        className="bg-gray-400 flex flex-col w-1/3 gap-4 p-4"
-      >
-        <Input name="nombre" label="Nombre"  />
-        <Input name="apellido" label="Apellido" />
-        <Input
-          name="numeroTelefono"
-          label="Teléfono"
-          type="tel"
-        />
-        <Input name="foto" label="Foto" type="file" />
-        <Button/>
-      </form>
-    </main>
+    <div>
+      <SubStoreComponent id="one" />
+      <SubStoreComponent id="two" />
+    </div>
   );
 }
