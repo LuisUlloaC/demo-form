@@ -12,6 +12,45 @@ type SubStore = {
   setErrors: (errors: { path: string; message: string }[]) => void;
 };
 
+/**
+ persist(
+        (set, get) => ({
+          fields: [...initial],
+          errors: [],
+
+          setField: (name: any, value: any) => {
+            set(
+              (state: any) => {
+                const idx = state.fields.findIndex((f: any) => f.name === name);
+                if (idx >= 0) {
+                  const updated = [...state.fields];
+                  updated[idx] = { name, value };
+                  return { fields: updated };
+                }
+                return { fields: [...state.fields, { name, value }] };
+              },
+              false,
+              `setField(${name})`
+            );
+          },
+
+          setErrors: (errors: any) => set({ errors }, false, "setErrors"),
+        }),
+        {
+          name: `${name}`,
+          storage: createJSONStorage(() => sessionStorage),
+          partialize: (state: any) => ({
+            fields: state.fields,
+            errors: state.errors,
+          }),
+          merge: (persistedState: any, currentState: any) => ({
+            ...currentState,
+            ...persistedState,
+          }),
+        }
+      ),
+ */
+
 export const createSubStore = (initial: Field[]) =>
   create<SubStore>((set, get) => ({
     fields: [...initial],
